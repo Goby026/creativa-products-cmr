@@ -11,7 +11,7 @@ export function Gallery() {
   if (images.length === 0) return null;
 
   const index = Math.min(active, images.length - 1);
-  const src = imageUrl(images[index].url);
+  const src = imageUrl(images[index].url, { w: 1200, q: 80 });
 
   return (
     <div className="relative z-10 flex flex-col items-center">
@@ -49,7 +49,7 @@ export function Gallery() {
               )}
             >
               <img
-                src={imageUrl(item.url)}
+                src={imageUrl(item.url, { w: 96, q: 60 })}
                 alt={`Miniatura foto ${i + 1}`}
                 loading="lazy"
                 className="h-14 w-14 rounded-lg object-cover"

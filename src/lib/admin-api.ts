@@ -1,16 +1,6 @@
 import { supabase } from "./supabase";
 import { IMAGE_BUCKET } from "./api";
-import type {
-  Product,
-  ProductImage,
-  Spec,
-  Dimension,
-  Feature,
-  Use,
-  Benefit,
-  Color,
-  Json,
-} from "./types";
+import type { Product, Json } from "./types";
 
 export type ChildTable =
   | "specs"
@@ -26,15 +16,6 @@ export type Row = {
   sort_order: number;
   [key: string]: unknown;
 };
-
-type ChildInsert =
-  | Omit<ProductImage, "id">
-  | Omit<Spec, "id">
-  | Omit<Dimension, "id">
-  | Omit<Feature, "id">
-  | Omit<Use, "id">
-  | Omit<Benefit, "id">
-  | Omit<Color, "id">;
 
 export type ProductSummary = Pick<
   Product,
@@ -66,19 +47,15 @@ export function newRowId(): string {
 export type AnalyticsCounters = { visits: number; whatsapp: number };
 
 export async function getAnalyticsCounters(): Promise<AnalyticsCounters> {
-  const [v, w] = await Promise.all([
-    supabase
-      .from("analytics_events")
-      .select("id", { count: "exact", head: true })
-      .eq("event", "visit"),
-    supabase
-      .from("analytics_events")
-      .select("id", { count: "exact", head: true })
-      .eq("event", "whatsapp_click"),
-  ]);
-  if (v.error) throw new Error(v.error.message);
-  if (w.error) throw new Error(w.error.message);
-  return { visits: v.count ?? 0, whatsapp: w.count ?? 0 };
+  const { data, error } = await supabase
+    .from("analytics_counters")
+    .select("event,count");
+  if (error) throw new Error(error.message);
+  const byEvent = new Map((data ?? []).map((r) => [r.event, r.count]));
+  return {
+    visits: byEvent.get("visit") ?? 0,
+    whatsapp: byEvent.get("whatsapp_click") ?? 0,
+  };
 }
 
 export async function listProducts(): Promise<ProductSummary[]> {
@@ -133,22 +110,48 @@ export async function replaceList(
   productId: string,
   rows: Row[],
 ) {
-  const { error: delError } = await supabase
-    .from(table)
-    .delete()
-    .eq("product_id", productId);
-  if (delError) throw new Error(delError.message);
-
-  if (rows.length === 0) return;
-
   const payload = rows.map(({ id: _id, ...rest }) => ({
     ...rest,
     product_id: productId,
   }));
-  const { error } = await supabase
-    .from(table)
-    .insert(payload as unknown as ChildInsert[]);
+  const { error } = await supabase.rpc("replace_product_rows", {
+    p_table: table,
+    p_product_id: productId,
+    p_rows: payload as unknown as Json,
+  });
   if (error) throw new Error(error.message);
+}
+
+/** Activa/desactiva un producto garantizando un único activo en la DB. */
+export async function setActiveProduct(id: string, active: boolean) {
+  if (active) {
+    const { data: others, error: listErr } = await supabase
+      .from("products")
+      .select("id")
+      .eq("active", true)
+      .neq("id", id);
+    if (listErr) throw new Error(listErr.message);
+    for (const other of others ?? []) {
+      const { error } = await supabase
+        .from("products")
+        .update({ active: false })
+        .eq("id", other.id);
+      if (error) throw new Error(error.message);
+    }
+  }
+  await updateProduct(id, { active });
+}
+
+/** Verifica si un slug ya está en uso por otro producto. */
+export async function slugExists(
+  slug: string,
+  exceptId?: string,
+): Promise<boolean> {
+  let query = supabase.from("products").select("id").eq("slug", slug);
+  if (exceptId) query = query.neq("id", exceptId);
+  const { data, error } = await query.maybeSingle();
+  if (error) throw new Error(error.message);
+  return data != null;
 }
 
 export async function upsertSetting(key: string, value: Json) {

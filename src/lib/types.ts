@@ -91,6 +91,11 @@ export type AnalyticsEvent = {
   created_at: string;
 };
 
+export type AnalyticsCounter = {
+  event: string;
+  count: number;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -104,43 +109,99 @@ export type Database = {
         Row: ProductImage;
         Insert: Omit<ProductImage, "id">;
         Update: Partial<Omit<ProductImage, "id">>;
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "product_images_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       specs: {
         Row: Spec;
         Insert: Omit<Spec, "id">;
         Update: Partial<Omit<Spec, "id">>;
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "specs_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       dimensions: {
         Row: Dimension;
         Insert: Omit<Dimension, "id">;
         Update: Partial<Omit<Dimension, "id">>;
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "dimensions_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       features: {
         Row: Feature;
         Insert: Omit<Feature, "id">;
         Update: Partial<Omit<Feature, "id">>;
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "features_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       uses: {
         Row: Use;
         Insert: Omit<Use, "id">;
         Update: Partial<Omit<Use, "id">>;
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "uses_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       benefits: {
         Row: Benefit;
         Insert: Omit<Benefit, "id">;
         Update: Partial<Omit<Benefit, "id">>;
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "benefits_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       colors: {
         Row: Color;
         Insert: Omit<Color, "id">;
         Update: Partial<Omit<Color, "id">>;
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "colors_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       site_settings: {
         Row: { key: string; value: Json };
@@ -160,9 +221,24 @@ export type Database = {
         Update: Partial<{ event: string }>;
         Relationships: [];
       };
+      analytics_counters: {
+        Row: AnalyticsCounter;
+        Insert: { event: string; count?: number };
+        Update: Partial<{ event: string; count: number }>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      increment_event: {
+        Args: { p_event: string };
+        Returns: undefined;
+      };
+      replace_product_rows: {
+        Args: { p_table: string; p_product_id: string; p_rows: Json };
+        Returns: undefined;
+      };
+    };
     Enums: Record<string, never>;
   };
 };

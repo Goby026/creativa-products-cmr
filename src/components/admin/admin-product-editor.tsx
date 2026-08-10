@@ -16,6 +16,8 @@ import {
   deleteStorageFile,
   newRowId,
   replaceList,
+  setActiveProduct,
+  slugExists,
   updateProduct,
   uploadImage,
   type Row,
@@ -155,7 +157,7 @@ function GalleryEditor({
       {rows.map((row, i) => (
         <div key={row.id} className="flex items-start gap-3 rounded-xl border p-3">
           <img
-            src={imageUrl(String(row.url))}
+            src={imageUrl(String(row.url), { w: 96 })}
             alt={String(row.alt ?? "")}
             className="h-16 w-16 shrink-0 rounded-lg border object-cover"
           />
@@ -288,69 +290,120 @@ export function AdminProductEditor() {
   const useSave_ = useSave();
   const benSave = useSave();
   const colSave = useSave();
+  const allSave = useSave();
 
   const patch = (key: keyof Product, value: Product[keyof Product]) =>
     setForm((f) => ({ ...f, [key]: value }));
 
+  const persistProduct = async () => {
+    const slug = form.slug.trim();
+    if (!slug) throw new Error("El slug es obligatorio");
+    if (await slugExists(slug, product.id)) {
+      throw new Error(`El slug "${slug}" ya lo usa otro producto`);
+    }
+    await setActiveProduct(product.id, form.active);
+    await updateProduct(product.id, {
+      name: form.name,
+      slug,
+      headline: form.headline,
+      headline_em: form.headline_em,
+      description: form.description,
+      price: Number(form.price) || 0,
+      old_price:
+        form.old_price == null || form.old_price === 0
+          ? null
+          : Number(form.old_price),
+      currency: form.currency,
+      sort_order: Number(form.sort_order) || 0,
+    });
+  };
+
+  const persistImages = async () => {
+    await replaceList("product_images", product.id, images);
+  };
+
+  const persistSpecs = async () => {
+    await replaceList("specs", product.id, specs);
+  };
+
+  const persistDimensions = async () => {
+    await replaceList("dimensions", product.id, dimensions);
+  };
+
+  const persistFeatures = async () => {
+    await replaceList("features", product.id, features);
+  };
+
+  const persistUses = async () => {
+    await replaceList("uses", product.id, uses);
+  };
+
+  const persistBenefits = async () => {
+    await replaceList("benefits", product.id, benefits);
+  };
+
+  const persistColors = async () => {
+    await replaceList("colors", product.id, colors);
+  };
+
   const saveProduct = () =>
     productSave.run(async () => {
-      await updateProduct(product.id, {
-        name: form.name,
-        slug: form.slug,
-        headline: form.headline,
-        headline_em: form.headline_em,
-        description: form.description,
-        price: Number(form.price) || 0,
-        old_price:
-          form.old_price == null || form.old_price === 0
-            ? null
-            : Number(form.old_price),
-        currency: form.currency,
-        active: form.active,
-        sort_order: Number(form.sort_order) || 0,
-      });
+      await persistProduct();
       await load();
     });
 
   const saveImages = () =>
     imgSave.run(async () => {
-      await replaceList("product_images", product.id, images);
+      await persistImages();
       await load();
     });
 
   const saveSpecs = () =>
     specSave.run(async () => {
-      await replaceList("specs", product.id, specs);
+      await persistSpecs();
       await load();
     });
 
   const saveDimensions = () =>
     dimSave.run(async () => {
-      await replaceList("dimensions", product.id, dimensions);
+      await persistDimensions();
       await load();
     });
 
   const saveFeatures = () =>
     featSave.run(async () => {
-      await replaceList("features", product.id, features);
+      await persistFeatures();
       await load();
     });
 
   const saveUses = () =>
     useSave_.run(async () => {
-      await replaceList("uses", product.id, uses);
+      await persistUses();
       await load();
     });
 
   const saveBenefits = () =>
     benSave.run(async () => {
-      await replaceList("benefits", product.id, benefits);
+      await persistBenefits();
       await load();
     });
 
   const saveColors = () =>
     colSave.run(async () => {
-      await replaceList("colors", product.id, colors);
+      await persistColors();
+      await load();
+    });
+
+  const saveAll = () =>
+    allSave.run(async () => {
+      await persistProduct();
+      await persistImages();
+      await persistColors();
+      await persistSpecs();
+      await persistDimensions();
+      await persistFeatures();
+      await persistUses();
+      await persistBenefits();
       await load();
     });
 
@@ -366,11 +419,20 @@ export function AdminProductEditor() {
 
   return (
     <>
-      <div>
-        <h1 className="font-heading text-2xl font-bold">Editor de producto</h1>
-        <p className="text-sm text-muted-foreground">
-          Los cambios se guardan directamente en la base de datos.
-        </p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="font-heading text-2xl font-bold">Editor de producto</h1>
+          <p className="text-sm text-muted-foreground">
+            Los cambios se guardan directamente en la base de datos.
+          </p>
+        </div>
+        <Button
+          variant="default"
+          disabled={allSave.saving}
+          onClick={saveAll}
+        >
+          {allSave.saving ? "Guardando todo…" : "💾 Guardar todo"}
+        </Button>
       </div>
 
       <AdminSection

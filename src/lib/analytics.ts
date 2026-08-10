@@ -36,16 +36,22 @@ export function setMeasurementId(id: string) {
   if (GA_ID) inject();
 }
 
-export function trackEvent(name: string) {
+export function trackEvent(
+  name: string,
+  product?: { slug?: string | null; name?: string | null },
+) {
   if (!GA_ID) return;
-  gtag()("event", name, { product: "estante-5-niveles" });
+  gtag()("event", name, {
+    product: product?.slug ?? undefined,
+    product_name: product?.name ?? undefined,
+  });
 }
 
 async function logEvent(event: string) {
   if (!isSupabaseConfigured) return;
-  const { error } = await supabase.from("analytics_events").insert({ event });
+  const { error } = await supabase.rpc("increment_event", { p_event: event });
   if (error) {
-    console.warn("analytics_events:", error.message);
+    console.warn("increment_event:", error.message);
   }
 }
 

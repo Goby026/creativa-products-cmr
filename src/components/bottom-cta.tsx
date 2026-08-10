@@ -22,7 +22,7 @@ export function BottomCta({ color }: { color: string }) {
   const cfg = settingObject<BottomCtaConfig>(settings, "bottom_cta");
 
   const handleWhatsApp = () => {
-    trackEvent("whatsapp_click");
+    trackEvent("whatsapp_click", product ? { slug: product.slug, name: product.name } : undefined);
     trackWhatsAppClick();
     if (product && wa?.number) {
       openWhatsApp({

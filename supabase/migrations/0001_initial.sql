@@ -1,8 +1,6 @@
 -- ═══════════════════════════════════════════════════════════════
 -- ESQUINERO · Migración inicial (Supabase / PostgreSQL)
 -- Ejecuta TODO este script en: Supabase Dashboard → SQL Editor → Run
--- ⚠️ Este script BORRA y recrea las tablas (pierde datos). En producción
---    aplica los cambios nuevos como archivos en supabase/migrations/.
 -- ═══════════════════════════════════════════════════════════════
 
 drop table if exists public.product_images cascade;
@@ -15,7 +13,6 @@ drop table if exists public.colors cascade;
 drop table if exists public.site_settings cascade;
 drop table if exists public.admin_users cascade;
 drop table if exists public.analytics_events cascade;
-drop table if exists public.analytics_counters cascade;
 drop table if exists public.products cascade;
 
 -- ── Trigger para updated_at ──────────────────────────────────
@@ -49,11 +46,6 @@ create table public.products (
 create trigger trg_products_updated_at
   before update on public.products
   for each row execute function public.set_updated_at();
-
--- Máximo un producto activo (el sitio muestra solo el primero por sort_order)
-create unique index one_active_product_idx
-  on public.products ((true))
-  where active;
 
 -- ── Tablas hijas ─────────────────────────────────────────────
 create table public.product_images (
@@ -128,8 +120,6 @@ create table public.admin_users (
 );
 
 -- ── Contadores de actividad (visitas y clicks a WhatsApp) ─────
--- La tabla de eventos se conserva como histórico (solo lectura admin).
--- Los contadores viven en analytics_counters y se incrementan vía RPC.
 create table public.analytics_events (
   id          bigint generated always as identity primary key,
   event       text not null,   -- 'visit' | 'whatsapp_click'
@@ -137,64 +127,6 @@ create table public.analytics_events (
 );
 
 create index analytics_events_event_idx on public.analytics_events (event);
-
-create table public.analytics_counters (
-  event       text primary key,
-  count       bigint not null default 0
-);
-
-create or replace function public.increment_event(p_event text)
-returns void
-language plpgsql
-security definer
-set search_path = public
-as $$
-begin
-  if p_event is null or length(p_event) = 0 then
-    raise exception 'evento requerido';
-  end if;
-  insert into public.analytics_counters (event, count)
-  values (p_event, 1)
-  on conflict (event) do update set count = public.analytics_counters.count + 1;
-end;
-$$;
-
--- ── RPC: reemplazo atómico de tablas hijas (solo admin) ───────
--- delete + insert en una sola transacción; p_rows llega sin la columna id.
-create or replace function public.replace_product_rows(
-  p_table      text,
-  p_product_id uuid,
-  p_rows       jsonb
-)
-returns void
-language plpgsql
-security definer
-set search_path = public
-as $$
-declare
-  v_allowed text[] := array['specs','dimensions','features','uses','benefits','colors','product_images'];
-begin
-  if not exists (select 1 from public.admin_users a where a.user_id = auth.uid()) then
-    raise exception 'No autorizado';
-  end if;
-  if p_table is null or not (p_table = any(v_allowed)) then
-    raise exception 'Tabla no permitida';
-  end if;
-  if p_product_id is null then
-    raise exception 'product_id requerido';
-  end if;
-
-  execute format('delete from public.%I where product_id = $1', p_table)
-    using p_product_id;
-
-  if jsonb_array_length(coalesce(p_rows, '[]'::jsonb)) > 0 then
-    execute format(
-      'insert into public.%I select * from jsonb_populate_recordset(null::public.%I, $1)',
-      p_table, p_table
-    ) using p_rows;
-  end if;
-end;
-$$;
 
 -- ── RLS: lectura pública ─────────────────────────────────────
 alter table public.products        enable row level security;
@@ -208,7 +140,6 @@ alter table public.colors          enable row level security;
 alter table public.site_settings   enable row level security;
 alter table public.admin_users     enable row level security;
 alter table public.analytics_events enable row level security;
-alter table public.analytics_counters enable row level security;
 
 do $$
 declare t text;
@@ -260,25 +191,15 @@ create policy "admin write site_settings"  on public.site_settings  for all
   using (exists (select 1 from public.admin_users a where a.user_id = auth.uid()))
   with check (exists (select 1 from public.admin_users a where a.user_id = auth.uid()));
 
--- admin_users: cada usuario ve su propia fila; los admins ven todas
-create policy "own admin read admin_users" on public.admin_users
-  for select using (auth.uid() = user_id);
+-- admin_users: lectura para usuarios autenticados
+create policy "authenticated read admin_users" on public.admin_users
+  for select using (auth.role() = 'authenticated');
 
-create policy "admin read admin_users" on public.admin_users
-  for select using (exists (select 1 from public.admin_users a where a.user_id = auth.uid()));
+-- analytics_events: cualquiera puede registrar, solo el admin lee
+create policy "public insert analytics_events" on public.analytics_events
+  for insert to anon, authenticated
+  with check (true);
 
--- analytics: cualquiera incrementa contadores vía RPC, solo el admin lee.
--- (security definer: la función escribe aunque RLS deniegue los inserts directos)
-revoke all on function public.increment_event(text) from public;
-grant execute on function public.increment_event(text) to anon, authenticated;
-
-revoke all on function public.replace_product_rows(text, uuid, jsonb) from public;
-grant execute on function public.replace_product_rows(text, uuid, jsonb) to authenticated;
-
-create policy "admin read analytics_counters" on public.analytics_counters
-  for select using (exists (select 1 from public.admin_users a where a.user_id = auth.uid()));
-
--- histórico de eventos: lectura solo admin (ya no se inserta desde el front)
 create policy "admin read analytics_events" on public.analytics_events
   for select using (exists (select 1 from public.admin_users a where a.user_id = auth.uid()));
 

@@ -33,26 +33,38 @@ for (const t of [
   }
 }
 
-console.log("\n1b) Tabla de contadores (solo admin lee)");
+console.log("\n1b) Contadores (RPC público, lectura solo admin)");
 {
-  const { count, error } = await svcC
-    .from("analytics_events").select("id", { count: "exact", head: true });
-  if (error) bad("analytics_events", error.message);
-  else ok("analytics_events", `${count ?? 0} eventos`);
-  const { data, error: insErr } = await anonC
-    .from("analytics_events").insert({ event: "verify_test" });
-  if (insErr) bad("insert anónimo", insErr.message);
+  const { error: rpcErr } = await anonC.rpc("increment_event", { p_event: "verify_test" });
+  if (rpcErr) bad("increment_event (anónimo)", rpcErr.message);
+  else ok("increment_event (anónimo puede registrar)");
+
+  const { data: counters, error: cErr } = await svcC
+    .from("analytics_counters").select("event,count");
+  if (cErr) bad("analytics_counters", cErr.message);
   else {
-    ok("insert anónimo (público puede registrar)");
-    await svcC.from("analytics_events").delete().eq("event", "verify_test");
+    const row = (counters ?? []).find((c) => c.event === "verify_test");
+    if (!row) bad("analytics_counters", "no registró el contador verify_test");
+    else ok("analytics_counters", `${row.event} = ${row.count}`);
   }
+
   const { data: sel, error: selErr } = await anonC
-    .from("analytics_events").select("id").limit(1);
+    .from("analytics_counters").select("event").limit(1);
   if (!selErr && (sel ?? []).length === 0)
-    ok("select anónimo", "0 filas (solo admin lee)");
+    ok("select anónimo counters", "0 filas (solo admin lee)");
   else if (!selErr)
-    bad("select anónimo", `devuelve ${(sel ?? []).length} filas (debería estar denegado)`);
-  else bad("select anónimo", selErr.message);
+    bad("select anónimo counters", `devuelve ${(sel ?? []).length} filas`);
+  else bad("select anónimo counters", selErr.message);
+
+  const { error: rpcAdminErr } = await anonC.rpc("replace_product_rows", {
+    p_table: "specs",
+    p_product_id: "00000000-0000-0000-0000-000000000001",
+    p_rows: [],
+  });
+  if (rpcAdminErr) ok("replace_product_rows (anónimo)", "denegado como debe ser");
+  else bad("replace_product_rows (anónimo)", "no debería estar permitido para cualquiera");
+
+  await svcC.from("analytics_counters").delete().eq("event", "verify_test");
 }
 
 console.log("\n2) Seed");

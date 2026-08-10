@@ -27,7 +27,7 @@ export function Hero({
   const wa = settingObject<{ number: string }>(settings, "whatsapp");
 
   const handleWhatsApp = () => {
-    trackEvent("whatsapp_click");
+    trackEvent("whatsapp_click", product ? { slug: product.slug, name: product.name } : undefined);
     trackWhatsAppClick();
     if (product && wa?.number) {
       openWhatsApp({

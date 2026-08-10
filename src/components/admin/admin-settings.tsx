@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -93,18 +94,20 @@ export function AdminSettings() {
 
   return (
     <>
-      <div>
-        <h1 className="font-heading text-2xl font-bold">Ajustes del sitio</h1>
-        <p className="text-sm text-muted-foreground">
-          WhatsApp, pagos, textos y SEO. Se aplican al guardar.
-        </p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="font-heading text-2xl font-bold">Ajustes del sitio</h1>
+          <p className="text-sm text-muted-foreground">
+            WhatsApp, pagos, textos y SEO. Se aplican al guardar.
+          </p>
+        </div>
+        <Button onClick={doSave} disabled={save.saving}>
+          {save.saving ? "Guardando…" : "💾 Guardar todos los ajustes"}
+        </Button>
       </div>
 
       <AdminSection
         title="WhatsApp"
-        onSave={doSave}
-        saving={save.saving}
-        saved={save.saved}
       >
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
@@ -128,9 +131,6 @@ export function AdminSettings() {
 
       <AdminSection
         title="Sección principal (hero)"
-        onSave={doSave}
-        saving={save.saving}
-        saved={save.saved}
       >
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
@@ -147,9 +147,6 @@ export function AdminSettings() {
 
       <AdminSection
         title="Llamada final (bottom CTA)"
-        onSave={doSave}
-        saving={save.saving}
-        saved={save.saved}
       >
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
@@ -182,9 +179,6 @@ export function AdminSettings() {
 
       <AdminSection
         title="Listas (una por línea)"
-        onSave={doSave}
-        saving={save.saving}
-        saved={save.saved}
       >
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
@@ -210,9 +204,6 @@ export function AdminSettings() {
 
       <AdminSection
         title="Datos de la empresa (RUC)"
-        onSave={doSave}
-        saving={save.saving}
-        saved={save.saved}
       >
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
@@ -292,9 +283,6 @@ export function AdminSettings() {
 
       <AdminSection
         title="Marca y Analytics"
-        onSave={doSave}
-        saving={save.saving}
-        saved={save.saved}
       >
         <div className="grid gap-4 sm:grid-cols-3">
           <div>
@@ -328,9 +316,6 @@ export function AdminSettings() {
 
       <AdminSection
         title="SEO"
-        onSave={doSave}
-        saving={save.saving}
-        saved={save.saved}
       >
         <div className="grid gap-4">
           <div>

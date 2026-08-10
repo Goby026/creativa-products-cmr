@@ -1,16 +1,18 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/toast";
 import {
   createProduct,
   deleteProduct,
   listProducts,
-  updateProduct,
+  setActiveProduct,
   type ProductSummary,
 } from "@/lib/admin-api";
 
 export function AdminProducts() {
   const navigate = useNavigate();
+  const showToast = useToast();
   const [products, setProducts] = useState<ProductSummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -45,7 +47,7 @@ export function AdminProducts() {
       });
       navigate(`/admin/producto/${id}`);
     } catch (e) {
-      alert(e instanceof Error ? e.message : "Error al crear producto");
+      showToast(e instanceof Error ? e.message : "Error al crear producto");
     } finally {
       setBusyId(null);
     }
@@ -54,10 +56,10 @@ export function AdminProducts() {
   async function handleToggleActive(p: ProductSummary) {
     setBusyId(p.id);
     try {
-      await updateProduct(p.id, { active: !p.active });
+      await setActiveProduct(p.id, !p.active);
       await load();
     } catch (e) {
-      alert(e instanceof Error ? e.message : "Error al actualizar");
+      showToast(e instanceof Error ? e.message : "Error al actualizar");
     } finally {
       setBusyId(null);
     }
@@ -76,7 +78,7 @@ export function AdminProducts() {
       await deleteProduct(p.id);
       await load();
     } catch (e) {
-      alert(e instanceof Error ? e.message : "Error al eliminar");
+      showToast(e instanceof Error ? e.message : "Error al eliminar");
     } finally {
       setBusyId(null);
     }

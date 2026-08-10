@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/toast";
 
 export function Spinner({ label = "Cargando…" }: { label?: string }) {
   return (
@@ -11,6 +12,7 @@ export function Spinner({ label = "Cargando…" }: { label?: string }) {
 }
 
 export function useSave() {
+  const showToast = useToast();
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -20,8 +22,9 @@ export function useSave() {
     try {
       await fn();
       setSaved(true);
+      showToast("✓ Guardado");
     } catch (e) {
-      alert(e instanceof Error ? e.message : "Error al guardar");
+      showToast(e instanceof Error ? e.message : "Error al guardar");
     } finally {
       setSaving(false);
     }
@@ -41,9 +44,9 @@ export function AdminSection({
   title: string;
   description?: string;
   children: ReactNode;
-  onSave: () => void;
-  saving: boolean;
-  saved: boolean;
+  onSave?: () => void;
+  saving?: boolean;
+  saved?: boolean;
 }) {
   return (
     <section className="rounded-2xl border bg-card p-5 md:p-6">
@@ -54,16 +57,18 @@ export function AdminSection({
             <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
           )}
         </div>
-        <div className="flex items-center gap-2">
-          {saved && (
-            <span className="text-xs font-medium text-emerald-600">
-              ✓ Guardado
-            </span>
-          )}
-          <Button onClick={onSave} disabled={saving}>
-            {saving ? "Guardando…" : "Guardar"}
-          </Button>
-        </div>
+        {onSave && (
+          <div className="flex items-center gap-2">
+            {saved && (
+              <span className="text-xs font-medium text-emerald-600">
+                ✓ Guardado
+              </span>
+            )}
+            <Button onClick={onSave} disabled={saving}>
+              {saving ? "Guardando…" : "Guardar"}
+            </Button>
+          </div>
+        )}
       </div>
       {children}
     </section>

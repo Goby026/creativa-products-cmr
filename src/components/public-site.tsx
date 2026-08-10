@@ -48,7 +48,7 @@ function ErrorState({ message }: { message: string }) {
 export function PublicSite() {
   const [color, setColor] = useState("Blanco");
   const { data, loading, error } = useProduct();
-  useMeta(data.settings);
+  useMeta(data.settings, data.product);
   useReveal();
 
   useEffect(() => {
