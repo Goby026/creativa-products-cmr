@@ -265,6 +265,7 @@ insert into public.site_settings (key, value) values
   ('payments',  '["💛 Yape", "💜 Plin", "💵 Efectivo", "🤝 Contra entrega"]'),
   ('trust',     '["🚚 Envío en Huancayo", "🛡️ Garantía de calidad", "📐 Melamina 15 mm"]'),
   ('brand',     '{"nav": "Creativa Melatech", "footer": "Creativa Melatech"}'),
+  ('company',   '{"legal_name": "CREATIVA MELATECH S.A.C.", "ruc": "20615245322", "type": "Sociedad Anónima Cerrada", "activity": "Venta al por menor y mayor de computadoras, periféricos y programas de informática", "phone": "972 420 795", "email": "george.rendich@gmail.com", "city": "Huancayo, Junín — Perú", "status": "Activo · Habido"}'),
   ('ga4',       '{"measurement_id": ""}'),
   ('hero',      '{"eyebrow": "Creativa Melatech · Huancayo"}'),
   ('bottom_cta','{"title": "¿Listo para organizar", "title_em": "tu espacio?", "subtitle": "Fabricado en Huancayo · Precios finales · Sin letra pequeña"}'),

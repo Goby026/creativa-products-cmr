@@ -9,6 +9,16 @@ import { upsertSetting } from "@/lib/admin-api";
 
 type Wa = { number?: string; display?: string };
 type Brand = { nav?: string; footer?: string };
+type Company = {
+  legal_name?: string;
+  ruc?: string;
+  type?: string;
+  activity?: string;
+  phone?: string;
+  email?: string;
+  city?: string;
+  status?: string;
+};
 type Hero = { eyebrow?: string };
 type Cta = { title?: string; title_em?: string; subtitle?: string };
 type Seo = { title?: string; description?: string; og_image?: string };
@@ -27,6 +37,7 @@ export function AdminSettings() {
   const [wa, setWa] = useState<Wa>({});
   const [ga, setGa] = useState("");
   const [brand, setBrand] = useState<Brand>({});
+  const [company, setCompany] = useState<Company>({});
   const [hero, setHero] = useState<Hero>({});
   const [cta, setCta] = useState<Cta>({});
   const [payments, setPayments] = useState("");
@@ -37,6 +48,7 @@ export function AdminSettings() {
     setWa(settingObject<Wa>(s, "whatsapp") ?? {});
     setGa(settingObject<{ measurement_id?: string }>(s, "ga4")?.measurement_id ?? "");
     setBrand(settingObject<Brand>(s, "brand") ?? {});
+    setCompany(settingObject<Company>(s, "company") ?? {});
     setHero(settingObject<Hero>(s, "hero") ?? {});
     setCta(settingObject<Cta>(s, "bottom_cta") ?? {});
     setPayments(settingArray(s, "payments").join("\n"));
@@ -52,6 +64,16 @@ export function AdminSettings() {
         upsertSetting("whatsapp", { number: wa.number, display: wa.display }),
         upsertSetting("ga4", { measurement_id: ga }),
         upsertSetting("brand", { nav: brand.nav, footer: brand.footer }),
+        upsertSetting("company", {
+          legal_name: company.legal_name,
+          ruc: company.ruc,
+          type: company.type,
+          activity: company.activity,
+          phone: company.phone,
+          email: company.email,
+          city: company.city,
+          status: company.status,
+        }),
         upsertSetting("hero", { eyebrow: hero.eyebrow }),
         upsertSetting("bottom_cta", {
           title: cta.title,
@@ -181,6 +203,88 @@ export function AdminSettings() {
               value={trust}
               onChange={(e) => setTrust(e.target.value)}
               placeholder={"🚚 Envío en Huancayo\n🛡️ Garantía de calidad"}
+            />
+          </div>
+        </div>
+      </AdminSection>
+
+      <AdminSection
+        title="Datos de la empresa (RUC)"
+        onSave={doSave}
+        saving={save.saving}
+        saved={save.saved}
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <Label>Razón social</Label>
+            <Input
+              value={company.legal_name ?? ""}
+              onChange={(e) =>
+                setCompany((v) => ({ ...v, legal_name: e.target.value }))
+              }
+            />
+          </div>
+          <div>
+            <Label>RUC</Label>
+            <Input
+              value={company.ruc ?? ""}
+              onChange={(e) =>
+                setCompany((v) => ({ ...v, ruc: e.target.value }))
+              }
+            />
+          </div>
+          <div>
+            <Label>Tipo</Label>
+            <Input
+              value={company.type ?? ""}
+              onChange={(e) =>
+                setCompany((v) => ({ ...v, type: e.target.value }))
+              }
+            />
+          </div>
+          <div>
+            <Label>Estado</Label>
+            <Input
+              value={company.status ?? ""}
+              onChange={(e) =>
+                setCompany((v) => ({ ...v, status: e.target.value }))
+              }
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <Label>Actividad económica</Label>
+            <Input
+              value={company.activity ?? ""}
+              onChange={(e) =>
+                setCompany((v) => ({ ...v, activity: e.target.value }))
+              }
+            />
+          </div>
+          <div>
+            <Label>Teléfono</Label>
+            <Input
+              value={company.phone ?? ""}
+              onChange={(e) =>
+                setCompany((v) => ({ ...v, phone: e.target.value }))
+              }
+            />
+          </div>
+          <div>
+            <Label>Correo</Label>
+            <Input
+              value={company.email ?? ""}
+              onChange={(e) =>
+                setCompany((v) => ({ ...v, email: e.target.value }))
+              }
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <Label>Ciudad / ubicación</Label>
+            <Input
+              value={company.city ?? ""}
+              onChange={(e) =>
+                setCompany((v) => ({ ...v, city: e.target.value }))
+              }
             />
           </div>
         </div>

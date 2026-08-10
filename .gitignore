@@ -65,6 +65,7 @@ Desktop.ini
 uploads/
 public/uploads/
 *.local.json
+info/
 
 .vercel
 .env*
