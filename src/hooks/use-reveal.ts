@@ -2,8 +2,17 @@ import { useEffect } from "react";
 
 export function useReveal() {
   useEffect(() => {
-    const elements = document.querySelectorAll(".reveal");
-    const observer = new IntersectionObserver(
+    let observer: IntersectionObserver;
+    let mutationObserver: MutationObserver;
+
+    const observeNew = () => {
+      const elements = document.querySelectorAll<HTMLElement>(
+        ".reveal:not(.reveal-visible)",
+      );
+      elements.forEach((el) => observer.observe(el));
+    };
+
+    observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
           if (entry.isIntersecting) {
@@ -14,7 +23,18 @@ export function useReveal() {
       },
       { threshold: 0.1 },
     );
-    elements.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
+
+    observeNew();
+
+    mutationObserver = new MutationObserver(observeNew);
+    mutationObserver.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+
+    return () => {
+      observer.disconnect();
+      mutationObserver.disconnect();
+    };
   }, []);
 }
