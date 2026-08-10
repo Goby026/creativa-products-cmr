@@ -22,7 +22,7 @@ const bad = (label, detail = "") =>
 console.log("1) Conexión y tablas");
 for (const t of [
   "products", "product_images", "specs", "dimensions", "features",
-  "uses", "benefits", "colors", "site_settings", "admin_users", "analytics_events",
+  "uses", "benefits", "colors", "site_settings", "admin_users",
 ]) {
   try {
     const { error } = await anonC.from(t).select("*").limit(1);
@@ -31,6 +31,28 @@ for (const t of [
   } catch (e) {
     bad(t, e.message);
   }
+}
+
+console.log("\n1b) Tabla de contadores (solo admin lee)");
+{
+  const { count, error } = await svcC
+    .from("analytics_events").select("id", { count: "exact", head: true });
+  if (error) bad("analytics_events", error.message);
+  else ok("analytics_events", `${count ?? 0} eventos`);
+  const { data, error: insErr } = await anonC
+    .from("analytics_events").insert({ event: "verify_test" });
+  if (insErr) bad("insert anónimo", insErr.message);
+  else {
+    ok("insert anónimo (público puede registrar)");
+    await svcC.from("analytics_events").delete().eq("event", "verify_test");
+  }
+  const { data: sel, error: selErr } = await anonC
+    .from("analytics_events").select("id").limit(1);
+  if (!selErr && (sel ?? []).length === 0)
+    ok("select anónimo", "0 filas (solo admin lee)");
+  else if (!selErr)
+    bad("select anónimo", `devuelve ${(sel ?? []).length} filas (debería estar denegado)`);
+  else bad("select anónimo", selErr.message);
 }
 
 console.log("\n2) Seed");
