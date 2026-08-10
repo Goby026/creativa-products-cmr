@@ -260,12 +260,12 @@ create policy "admin write site_settings"  on public.site_settings  for all
   using (exists (select 1 from public.admin_users a where a.user_id = auth.uid()))
   with check (exists (select 1 from public.admin_users a where a.user_id = auth.uid()));
 
--- admin_users: cada usuario ve su propia fila; los admins ven todas
+-- admin_users: cada usuario ve su propia fila. NO crear una política
+-- "ver todas" que consulte admin_users: como las políticas de products y
+-- tablas hijas también consultan admin_users, se produce recursión
+-- infinita en RLS (42P17) y el sitio deja de cargar.
 create policy "own admin read admin_users" on public.admin_users
   for select using (auth.uid() = user_id);
-
-create policy "admin read admin_users" on public.admin_users
-  for select using (exists (select 1 from public.admin_users a where a.user_id = auth.uid()));
 
 -- analytics: cualquiera incrementa contadores vía RPC, solo el admin lee.
 -- (security definer: la función escribe aunque RLS deniegue los inserts directos)
