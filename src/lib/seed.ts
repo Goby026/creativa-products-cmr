@@ -280,7 +280,7 @@ export const SEED_BUNDLE: ProductBundle = {
       type: "Sociedad Anónima Cerrada",
       activity:
         "Venta al por menor y mayor de computadoras, periféricos y programas de informática",
-      phone: "972 420 795",
+      phone: "948 349 852",
       email: "george.rendich@gmail.com",
       city: "Huancayo, Junín — Perú",
       status: "Activo · Habido",

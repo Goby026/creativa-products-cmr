@@ -23,7 +23,7 @@ export function Footer() {
   const activity =
     c.activity ??
     "Venta al por menor y mayor de computadoras, periféricos y programas de informática";
-  const phone = c.phone ?? "972 420 795";
+  const phone = c.phone ?? "948 349 852";
   const email = c.email ?? "george.rendich@gmail.com";
   const city = c.city ?? "Huancayo, Junín — Perú";
   const status = c.status ?? "Activo · Habido";
