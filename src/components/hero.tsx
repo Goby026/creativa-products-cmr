@@ -7,9 +7,8 @@ import { WhatsappIcon } from "@/components/whatsapp-icon";
 import { useToast } from "@/components/toast";
 import { openWhatsApp } from "@/lib/whatsapp";
 import { trackEvent } from "@/lib/analytics";
-
-const PAYMENTS = ["💛 Yape", "💜 Plin", "💵 Efectivo", "🤝 Contra entrega"];
-const TRUST = ["🚚 Envío en Huancayo", "🛡️ Garantía de calidad", "📐 Melamina 15 mm"];
+import { settingArray, settingObject } from "@/lib/api";
+import { useProduct } from "@/context/product-context";
 
 export function Hero({
   color,
@@ -19,10 +18,25 @@ export function Hero({
   onColorChange: (value: string) => void;
 }) {
   const showToast = useToast();
+  const { data } = useProduct();
+  const { product, colors, settings } = data;
+
+  const payments = settingArray(settings, "payments");
+  const trust = settingArray(settings, "trust");
+  const heroCfg = settingObject<{ eyebrow?: string }>(settings, "hero");
+  const wa = settingObject<{ number: string }>(settings, "whatsapp");
 
   const handleWhatsApp = () => {
     trackEvent("whatsapp_click");
-    openWhatsApp(color);
+    if (product && wa?.number) {
+      openWhatsApp({
+        number: wa.number,
+        name: product.name,
+        currency: product.currency,
+        price: product.price,
+        color,
+      });
+    }
   };
 
   return (
@@ -40,21 +54,20 @@ export function Hero({
 
       <div className="flex flex-col justify-center px-6 py-10 md:px-12 md:py-0">
         <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
-          Creativa Melatech · Huancayo
+          {heroCfg?.eyebrow ?? "Creativa Melatech · Huancayo"}
         </p>
         <h1 className="mb-5 font-heading text-4xl font-bold leading-[1.1] md:text-[48px]">
-          Estante Vertical
+          {product?.headline ?? "Estante Vertical"}
           <br />
-          <em className="italic text-primary">5 Niveles</em>
+          <em className="italic text-primary">{product?.headline_em ?? "5 Niveles"}</em>
         </h1>
         <p className="mb-7 max-w-[420px] text-[15px] leading-relaxed text-muted-foreground">
-          Diseño esquinero en melamina de 15 mm, abierto por ambos lados para
-          una vista limpia desde cualquier ángulo. Cinco bandejas que soportan
-          hasta 30 kg cada una — ideal para libros, plantas, electrónicos o lo
-          que imagines.
+          {product?.description ??
+            "Diseño esquinero en melamina de 15 mm, abierto por ambos lados para una vista limpia desde cualquier ángulo."}
         </p>
 
         <ColorSelector
+          colors={colors}
           value={color}
           onChange={(v) => {
             onColorChange(v);
@@ -69,7 +82,7 @@ export function Hero({
         <PriceBlock />
 
         <div className="mb-6 flex flex-wrap gap-2">
-          {PAYMENTS.map((m) => (
+          {payments.map((m) => (
             <span
               key={m}
               className="rounded-lg border-[1.5px] bg-card px-3 py-1.5 text-xs font-medium"
@@ -105,7 +118,7 @@ export function Hero({
         </div>
 
         <div className="mt-4 flex flex-wrap items-center gap-4">
-          {TRUST.map((t) => (
+          {trust.map((t) => (
             <span
               key={t}
               className="flex items-center gap-1.5 text-xs text-muted-foreground"

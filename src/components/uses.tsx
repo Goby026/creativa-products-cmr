@@ -1,27 +1,10 @@
-const USES = [
-  {
-    emoji: "📚",
-    title: "Librería",
-    text: "Organiza tus libros favoritos con estilo y acceso fácil en cualquier habitación",
-  },
-  {
-    emoji: "🌿",
-    title: "Plantas & Deco",
-    text: "Crea un jardín vertical en tu sala, comedor o dormitorio",
-  },
-  {
-    emoji: "🎮",
-    title: "Gaming & Tech",
-    text: "Consolas, mandos y accesorios perfectamente ordenados y a la vista",
-  },
-  {
-    emoji: "🏪",
-    title: "Local comercial",
-    text: "Exhibe productos en tiendas, bodegas o negocios con estilo profesional",
-  },
-];
+import { useProduct } from "@/context/product-context";
 
 export function Uses() {
+  const { data } = useProduct();
+
+  if (data.uses.length === 0) return null;
+
   return (
     <section className="mx-auto max-w-[1100px] px-6 py-20 md:px-10">
       <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
@@ -31,9 +14,9 @@ export function Uses() {
         Un estante, infinitas posibilidades
       </h2>
       <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {USES.map((u) => (
+        {data.uses.map((u) => (
           <div
-            key={u.title}
+            key={u.id}
             className="reveal group rounded-2xl border bg-card p-6 text-center transition-all duration-300 hover:-translate-y-[3px] hover:bg-foreground"
           >
             <span className="mb-3 block text-[30px]">{u.emoji}</span>

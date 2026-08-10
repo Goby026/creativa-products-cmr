@@ -1,33 +1,25 @@
-import { useState } from "react";
-import { BottomCta } from "@/components/bottom-cta";
-import { DeliveryStrip } from "@/components/delivery-strip";
-import { Dimensions } from "@/components/dimensions";
-import { Features } from "@/components/features";
-import { Footer } from "@/components/footer";
-import { Hero } from "@/components/hero";
-import { Nav } from "@/components/nav";
-import { SpecsStrip } from "@/components/specs-strip";
-import { ToastProvider } from "@/components/toast";
-import { Uses } from "@/components/uses";
-import { useReveal } from "@/hooks/use-reveal";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { ProductProvider } from "@/context/product-context";
+import { PublicSite } from "@/components/public-site";
+import { AdminLogin } from "@/components/admin/admin-login";
+import { AdminLayout } from "@/components/admin/admin-layout";
+import { AdminDashboard } from "@/components/admin/admin-dashboard";
+import { AdminProductEditor } from "@/components/admin/admin-product-editor";
+import { AdminSettings } from "@/components/admin/admin-settings";
 
 export default function App() {
-  const [color, setColor] = useState("Blanco");
-  useReveal();
-
   return (
-    <ToastProvider>
-      <Nav />
-      <main>
-        <Hero color={color} onColorChange={setColor} />
-        <SpecsStrip />
-        <Features />
-        <Dimensions />
-        <Uses />
-        <DeliveryStrip />
-        <BottomCta color={color} />
-      </main>
-      <Footer />
-    </ToastProvider>
+    <ProductProvider>
+      <Routes>
+        <Route path="/" element={<PublicSite />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="producto" element={<AdminProductEditor />} />
+          <Route path="ajustes" element={<AdminSettings />} />
+        </Route>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </ProductProvider>
   );
 }

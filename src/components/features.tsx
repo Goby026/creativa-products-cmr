@@ -1,39 +1,11 @@
 import { Card, CardContent } from "@/components/ui/card";
-
-const FEATURES = [
-  {
-    icon: "🪟",
-    title: "Abierto por ambos lados",
-    text: "Sin respaldo ni laterales cerrados. La vista es limpia desde cualquier ángulo, ideal para dividir ambientes o lucir tus objetos favoritos.",
-  },
-  {
-    icon: "💪",
-    title: "30 kg por bandeja",
-    text: "Cada nivel soporta hasta 30 kilogramos. Puedes poner libros pesados, macetas grandes o equipos sin preocuparte por el hundimiento.",
-  },
-  {
-    icon: "🪵",
-    title: "Melamina 15 mm premium",
-    text: "Superficie resistente a la humedad, al rayado y fácil de limpiar. El grosor de 15 mm garantiza rigidez sin peso innecesario.",
-  },
-  {
-    icon: "📐",
-    title: "Perfil esquinero compacto",
-    text: "Solo 30 × 30 cm de huella. Aprovecha los rincones que normalmente quedan vacíos, sin bloquear el paso ni la luz.",
-  },
-  {
-    icon: "🎨",
-    title: "Blanco, negro o a tu gusto",
-    text: "Los colores estándar son blanco y negro, pero fabricamos en el tono que necesites. Solo coordina el color al hacer tu pedido.",
-  },
-  {
-    icon: "⚡",
-    title: "Producción local Huancayo",
-    text: "Fabricado en Huancayo por Creativa Melatech. Producimos hasta 6 unidades por semana con control de calidad en cada pieza.",
-  },
-];
+import { useProduct } from "@/context/product-context";
 
 export function Features() {
+  const { data } = useProduct();
+
+  if (data.features.length === 0) return null;
+
   return (
     <section className="mx-auto max-w-[1100px] px-6 py-20 md:px-10">
       <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
@@ -43,9 +15,9 @@ export function Features() {
         Construido para durar, diseñado para organizar
       </h2>
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {FEATURES.map((f) => (
+        {data.features.map((f) => (
           <Card
-            key={f.title}
+            key={f.id}
             className="reveal p-7 transition-all duration-300 hover:-translate-y-[3px] hover:shadow-[0_8px_32px_rgba(0,0,0,0.08)] hover:ring-ring/60"
           >
             <CardContent className="px-0">

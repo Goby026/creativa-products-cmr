@@ -1,14 +1,20 @@
-import { WA_NUMBER, PRODUCT_NAME, PRICE } from "./constants";
+type Order = {
+  number: string;
+  name: string;
+  currency: string;
+  price: number;
+  color: string;
+};
 
-export function buildWhatsAppMessage(color: string): string {
+export function buildWhatsAppMessage({ name, currency, price, color }: Order): string {
   const colorMsg = color === "A pedido" ? "a pedido (coordinar color)" : color;
   return (
     "Hola Creativa Melatech 👋\n\nEstoy interesado/a en el *" +
-    PRODUCT_NAME +
+    name +
     "* a " +
-    PRICE.currency +
+    currency +
     " " +
-    PRICE.current +
+    price +
     ".\n" +
     "📌 Color: " +
     colorMsg +
@@ -16,11 +22,11 @@ export function buildWhatsAppMessage(color: string): string {
   );
 }
 
-export function openWhatsApp(color: string): void {
+export function openWhatsApp(order: Order): void {
   const url =
     "https://wa.me/" +
-    WA_NUMBER +
+    order.number +
     "?text=" +
-    encodeURIComponent(buildWhatsAppMessage(color));
+    encodeURIComponent(buildWhatsAppMessage(order));
   window.open(url, "_blank", "noopener");
 }
