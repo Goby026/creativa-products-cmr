@@ -63,6 +63,24 @@ export function newRowId(): string {
   return `new-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 }
 
+export type AnalyticsCounters = { visits: number; whatsapp: number };
+
+export async function getAnalyticsCounters(): Promise<AnalyticsCounters> {
+  const [v, w] = await Promise.all([
+    supabase
+      .from("analytics_events")
+      .select("id", { count: "exact", head: true })
+      .eq("event", "visit"),
+    supabase
+      .from("analytics_events")
+      .select("id", { count: "exact", head: true })
+      .eq("event", "whatsapp_click"),
+  ]);
+  if (v.error) throw new Error(v.error.message);
+  if (w.error) throw new Error(w.error.message);
+  return { visits: v.count ?? 0, whatsapp: w.count ?? 0 };
+}
+
 export async function listProducts(): Promise<ProductSummary[]> {
   const { data, error } = await supabase
     .from("products")

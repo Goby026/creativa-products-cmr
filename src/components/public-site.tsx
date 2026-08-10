@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Nav } from "@/components/nav";
 import { Hero } from "@/components/hero";
 import { SpecsStrip } from "@/components/specs-strip";
@@ -11,6 +11,7 @@ import { Footer } from "@/components/footer";
 import { useProduct } from "@/context/product-context";
 import { useMeta } from "@/hooks/use-meta";
 import { useReveal } from "@/hooks/use-reveal";
+import { trackVisit } from "@/lib/analytics";
 
 function Skeleton() {
   return (
@@ -49,6 +50,10 @@ export function PublicSite() {
   const { data, loading, error } = useProduct();
   useMeta(data.settings);
   useReveal();
+
+  useEffect(() => {
+    trackVisit();
+  }, []);
 
   if (loading) return <Skeleton />;
   if (error) return <ErrorState message={error} />;

@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { WhatsappIcon } from "@/components/whatsapp-icon";
 import { openWhatsApp } from "@/lib/whatsapp";
-import { trackEvent } from "@/lib/analytics";
+import { trackEvent, trackWhatsAppClick } from "@/lib/analytics";
 import { settingObject } from "@/lib/api";
 import { useProduct } from "@/context/product-context";
 
@@ -23,6 +23,7 @@ export function BottomCta({ color }: { color: string }) {
 
   const handleWhatsApp = () => {
     trackEvent("whatsapp_click");
+    trackWhatsAppClick();
     if (product && wa?.number) {
       openWhatsApp({
         number: wa.number,

@@ -1,8 +1,11 @@
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useProduct } from "@/context/product-context";
+import { getAnalyticsCounters } from "@/lib/admin-api";
+import type { AnalyticsCounters } from "@/lib/admin-api";
 
-function Stat({ label, value }: { label: string; value: number }) {
+function Stat({ label, value }: { label: string; value: number | string }) {
   return (
     <div className="rounded-xl border bg-card p-4 text-center">
       <p className="font-heading text-3xl font-bold">{value}</p>
@@ -16,6 +19,24 @@ function Stat({ label, value }: { label: string; value: number }) {
 export function AdminDashboard() {
   const { data, reload } = useProduct();
   const p = data.product;
+  const [counters, setCounters] = useState<AnalyticsCounters | null>(null);
+
+  const loadCounters = useCallback(async () => {
+    try {
+      setCounters(await getAnalyticsCounters());
+    } catch {
+      setCounters(null);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadCounters();
+  }, [loadCounters]);
+
+  const handleReload = () => {
+    void reload();
+    void loadCounters();
+  };
 
   return (
     <>
@@ -26,7 +47,7 @@ export function AdminDashboard() {
             Estado actual del sitio y atajos de edición.
           </p>
         </div>
-        <Button variant="outline" onClick={() => void reload()}>
+        <Button variant="outline" onClick={handleReload}>
           ↻ Recargar datos
         </Button>
       </div>
@@ -69,6 +90,14 @@ export function AdminDashboard() {
       )}
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <Stat
+          label="Visitas"
+          value={counters ? counters.visits : "…"}
+        />
+        <Stat
+          label="WhatsApp"
+          value={counters ? counters.whatsapp : "…"}
+        />
         <Stat label="Fotos" value={data.images.length} />
         <Stat label="Specs" value={data.specs.length} />
         <Stat label="Dimensiones" value={data.dimensions.length} />

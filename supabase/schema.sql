@@ -12,6 +12,7 @@ drop table if exists public.benefits cascade;
 drop table if exists public.colors cascade;
 drop table if exists public.site_settings cascade;
 drop table if exists public.admin_users cascade;
+drop table if exists public.analytics_events cascade;
 drop table if exists public.products cascade;
 
 -- ── Trigger para updated_at ──────────────────────────────────
@@ -118,6 +119,15 @@ create table public.admin_users (
   created_at  timestamptz not null default now()
 );
 
+-- ── Contadores de actividad (visitas y clicks a WhatsApp) ─────
+create table public.analytics_events (
+  id          bigint generated always as identity primary key,
+  event       text not null,   -- 'visit' | 'whatsapp_click'
+  created_at  timestamptz not null default now()
+);
+
+create index analytics_events_event_idx on public.analytics_events (event);
+
 -- ── RLS: lectura pública ─────────────────────────────────────
 alter table public.products        enable row level security;
 alter table public.product_images  enable row level security;
@@ -129,6 +139,7 @@ alter table public.benefits        enable row level security;
 alter table public.colors          enable row level security;
 alter table public.site_settings   enable row level security;
 alter table public.admin_users     enable row level security;
+alter table public.analytics_events enable row level security;
 
 do $$
 declare t text;
@@ -183,6 +194,14 @@ create policy "admin write site_settings"  on public.site_settings  for all
 -- admin_users: lectura para usuarios autenticados
 create policy "authenticated read admin_users" on public.admin_users
   for select using (auth.role() = 'authenticated');
+
+-- analytics_events: cualquiera puede registrar, solo el admin lee
+create policy "public insert analytics_events" on public.analytics_events
+  for insert to anon, authenticated
+  with check (true);
+
+create policy "admin read analytics_events" on public.analytics_events
+  for select using (exists (select 1 from public.admin_users a where a.user_id = auth.uid()));
 
 -- ═══════════════════════════════════════════════════════════════
 -- SEED · contenido actual del sitio

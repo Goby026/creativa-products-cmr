@@ -22,7 +22,7 @@ const bad = (label, detail = "") =>
 console.log("1) Conexión y tablas");
 for (const t of [
   "products", "product_images", "specs", "dimensions", "features",
-  "uses", "benefits", "colors", "site_settings", "admin_users",
+  "uses", "benefits", "colors", "site_settings", "admin_users", "analytics_events",
 ]) {
   try {
     const { error } = await anonC.from(t).select("*").limit(1);

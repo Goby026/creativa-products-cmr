@@ -85,6 +85,12 @@ export type SiteSettings = {
   [key: string]: Json;
 };
 
+export type AnalyticsEvent = {
+  id: number;
+  event: string;
+  created_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -146,6 +152,12 @@ export type Database = {
         Row: { user_id: string; created_at: string };
         Insert: { user_id: string; created_at?: string };
         Update: Partial<{ user_id: string; created_at: string }>;
+        Relationships: [];
+      };
+      analytics_events: {
+        Row: AnalyticsEvent;
+        Insert: { event: string };
+        Update: Partial<{ event: string }>;
         Relationships: [];
       };
     };

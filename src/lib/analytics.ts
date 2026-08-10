@@ -1,6 +1,9 @@
+import { supabase, isSupabaseConfigured } from "./supabase";
+
 type GtagFn = (...args: unknown[]) => void;
 
 let GA_ID = "";
+let visitLogged = false;
 
 function gtag(): GtagFn {
   const w = window as unknown as { gtag?: GtagFn; dataLayer?: unknown[] };
@@ -36,4 +39,24 @@ export function setMeasurementId(id: string) {
 export function trackEvent(name: string) {
   if (!GA_ID) return;
   gtag()("event", name, { product: "estante-5-niveles" });
+}
+
+async function logEvent(event: string) {
+  if (!isSupabaseConfigured) return;
+  const { error } = await supabase.from("analytics_events").insert({ event });
+  if (error) {
+    console.warn("analytics_events:", error.message);
+  }
+}
+
+/** Registra una visita: una por carga de página. */
+export function trackVisit() {
+  if (visitLogged) return;
+  visitLogged = true;
+  void logEvent("visit");
+}
+
+/** Registra un click en el botón de WhatsApp. */
+export function trackWhatsAppClick() {
+  void logEvent("whatsapp_click");
 }

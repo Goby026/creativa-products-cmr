@@ -6,7 +6,7 @@ import { PriceBlock } from "@/components/price-block";
 import { WhatsappIcon } from "@/components/whatsapp-icon";
 import { useToast } from "@/components/toast";
 import { openWhatsApp } from "@/lib/whatsapp";
-import { trackEvent } from "@/lib/analytics";
+import { trackEvent, trackWhatsAppClick } from "@/lib/analytics";
 import { settingArray, settingObject } from "@/lib/api";
 import { useProduct } from "@/context/product-context";
 
@@ -28,6 +28,7 @@ export function Hero({
 
   const handleWhatsApp = () => {
     trackEvent("whatsapp_click");
+    trackWhatsAppClick();
     if (product && wa?.number) {
       openWhatsApp({
         number: wa.number,
