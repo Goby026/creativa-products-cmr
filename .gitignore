@@ -65,3 +65,6 @@ Desktop.ini
 uploads/
 public/uploads/
 *.local.json
+
+.vercel
+.env*

@@ -64,9 +64,10 @@ async function main() {
   console.log(`✔ Bucket "${BUCKET}" listo`);
 
   for (const name of FILES) {
-    const filePath = path.join(ROOT, name);
-    if (!existsSync(filePath)) {
-      console.warn(`⚠ No existe ${name}, se omite`);
+    const candidates = [path.join(ROOT, "public", name), path.join(ROOT, name)];
+    const filePath = candidates.find(existsSync);
+    if (!filePath) {
+      console.warn(`⚠ No existe ${name} (ni en public/ ni en la raíz), se omite`);
       continue;
     }
     const body = readFileSync(filePath);
