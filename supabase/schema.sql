@@ -271,6 +271,40 @@ insert into public.site_settings (key, value) values
   ('seo',       '{"title": "Estante Vertical 5 Niveles | Creativa Melatech Huancayo", "description": "Estante esquinero vertical de 5 niveles en melamina 15 mm. Fabricado en Huancayo, envío a toda la ciudad, contra entrega. S/ 120.00.", "og_image": "/esquinero1.jpg"}');
 
 -- ═══════════════════════════════════════════════════════════════
+-- STORAGE · políticas del bucket "product-images"
+-- ═══════════════════════════════════════════════════════════════
+-- Requiere crear el bucket antes (o con `npm run upload:images`).
+
+create policy "public read product-images" on storage.objects
+  for select to public
+  using (bucket_id = 'product-images');
+
+create policy "admin upload product-images" on storage.objects
+  for insert to authenticated
+  with check (
+    bucket_id = 'product-images'
+    and exists (select 1 from public.admin_users a where a.user_id = auth.uid())
+  );
+
+create policy "admin update product-images" on storage.objects
+  for update to authenticated
+  using (
+    bucket_id = 'product-images'
+    and exists (select 1 from public.admin_users a where a.user_id = auth.uid())
+  )
+  with check (
+    bucket_id = 'product-images'
+    and exists (select 1 from public.admin_users a where a.user_id = auth.uid())
+  );
+
+create policy "admin delete product-images" on storage.objects
+  for delete to authenticated
+  using (
+    bucket_id = 'product-images'
+    and exists (select 1 from public.admin_users a where a.user_id = auth.uid())
+  );
+
+-- ═══════════════════════════════════════════════════════════════
 -- ADMIN · crear tu primer usuario administrador
 --  1) En Authentication → Users → Add user (email + password)
 --  2) Reemplaza <TU_USER_ID> por el UUID de ese usuario y ejecuta:

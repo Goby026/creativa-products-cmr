@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 
 const LINKS = [
   { to: "/admin", label: "Resumen", end: true },
-  { to: "/admin/producto", label: "Producto", end: false },
+  { to: "/admin/productos", label: "Productos", end: false },
   { to: "/admin/ajustes", label: "Ajustes", end: false },
 ];
 

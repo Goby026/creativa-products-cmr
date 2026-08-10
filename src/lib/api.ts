@@ -35,14 +35,17 @@ export function imageUrl(path: string): string {
   return data.publicUrl;
 }
 
-export async function fetchProductBundle(): Promise<ProductBundle> {
-  const { data: product, error: productError } = await supabase
-    .from("products")
-    .select("*")
-    .eq("active", true)
-    .order("sort_order", { ascending: true })
-    .limit(1)
-    .maybeSingle();
+export async function fetchProductBundle(productId?: string): Promise<ProductBundle> {
+  let query = supabase.from("products").select("*");
+  if (productId) {
+    query = query.eq("id", productId);
+  } else {
+    query = query
+      .eq("active", true)
+      .order("sort_order", { ascending: true })
+      .limit(1);
+  }
+  const { data: product, error: productError } = await query.maybeSingle();
 
   if (productError) throw productError;
 

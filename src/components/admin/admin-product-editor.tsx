@@ -1,13 +1,17 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { AdminSection, useSave } from "@/components/admin/admin-ui";
+import {
+  AdminSection,
+  Spinner,
+  useSave,
+} from "@/components/admin/admin-ui";
 import { RowEditor, type FieldDef } from "@/components/admin/row-editor";
-import { useProduct } from "@/context/product-context";
-import { imageUrl } from "@/lib/api";
+import { fetchProductBundle, imageUrl, type ProductBundle } from "@/lib/api";
 import {
   deleteStorageFile,
   newRowId,
@@ -226,8 +230,35 @@ const EMPTY_PRODUCT: Product = {
 };
 
 export function AdminProductEditor() {
-  const { data, reload } = useProduct();
-  const product = data.product ?? EMPTY_PRODUCT;
+  const { productId } = useParams<{ productId: string }>();
+  const [data, setData] = useState<ProductBundle | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    if (!productId) {
+      setError("Falta el id del producto.");
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      const bundle = await fetchProductBundle(productId);
+      setData(bundle.product ? bundle : null);
+      if (!bundle.product) setError("No se encontró el producto.");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Error de conexión");
+    } finally {
+      setLoading(false);
+    }
+  }, [productId]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const product = data?.product ?? EMPTY_PRODUCT;
 
   const [form, setForm] = useState<Product>(product);
   const [images, setImages] = useState<Row[]>([]);
@@ -239,14 +270,14 @@ export function AdminProductEditor() {
   const [colors, setColors] = useState<Row[]>([]);
 
   useEffect(() => {
-    if (data.product) setForm(data.product);
-    setImages(asRows(data.images));
-    setSpecs(asRows(data.specs));
-    setDimensions(asRows(data.dimensions));
-    setFeatures(asRows(data.features));
-    setUses(asRows(data.uses));
-    setBenefits(asRows(data.benefits));
-    setColors(asRows(data.colors));
+    if (data?.product) setForm(data.product);
+    setImages(asRows(data?.images ?? []));
+    setSpecs(asRows(data?.specs ?? []));
+    setDimensions(asRows(data?.dimensions ?? []));
+    setFeatures(asRows(data?.features ?? []));
+    setUses(asRows(data?.uses ?? []));
+    setBenefits(asRows(data?.benefits ?? []));
+    setColors(asRows(data?.colors ?? []));
   }, [data]);
 
   const productSave = useSave();
@@ -278,55 +309,57 @@ export function AdminProductEditor() {
         active: form.active,
         sort_order: Number(form.sort_order) || 0,
       });
-      await reload();
+      await load();
     });
 
   const saveImages = () =>
     imgSave.run(async () => {
       await replaceList("product_images", product.id, images);
-      await reload();
+      await load();
     });
 
   const saveSpecs = () =>
     specSave.run(async () => {
       await replaceList("specs", product.id, specs);
-      await reload();
+      await load();
     });
 
   const saveDimensions = () =>
     dimSave.run(async () => {
       await replaceList("dimensions", product.id, dimensions);
-      await reload();
+      await load();
     });
 
   const saveFeatures = () =>
     featSave.run(async () => {
       await replaceList("features", product.id, features);
-      await reload();
+      await load();
     });
 
   const saveUses = () =>
     useSave_.run(async () => {
       await replaceList("uses", product.id, uses);
-      await reload();
+      await load();
     });
 
   const saveBenefits = () =>
     benSave.run(async () => {
       await replaceList("benefits", product.id, benefits);
-      await reload();
+      await load();
     });
 
   const saveColors = () =>
     colSave.run(async () => {
       await replaceList("colors", product.id, colors);
-      await reload();
+      await load();
     });
 
-  if (!data.product) {
+  if (loading) return <Spinner label="Cargando producto…" />;
+
+  if (error || !data?.product) {
     return (
       <div className="rounded-2xl border border-dashed bg-card p-6 text-sm text-muted-foreground">
-        No hay un producto activo en la base de datos.
+        {error ?? "Producto no encontrado."}
       </div>
     );
   }

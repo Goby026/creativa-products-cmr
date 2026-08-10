@@ -49,14 +49,22 @@ export function AdminDashboard() {
                 )}
               </p>
             </div>
-            <Link to="/admin/producto">
-              <Button>Editar producto</Button>
-            </Link>
+            <div className="flex flex-wrap items-center gap-2">
+              <Link to={`/admin/producto/${p.id}`}>
+                <Button>Editar producto</Button>
+              </Link>
+              <Link to="/admin/productos">
+                <Button variant="outline">Ver todos</Button>
+              </Link>
+            </div>
           </div>
         </div>
       ) : (
         <div className="rounded-2xl border border-dashed bg-card p-6 text-sm text-muted-foreground">
-          No hay un producto activo. Crea uno desde la sección Producto.
+          No hay un producto activo mostrado en el sitio.{" "}
+          <Link to="/admin/productos" className="font-medium text-primary underline">
+            Gestionar productos
+          </Link>
         </div>
       )}
 
