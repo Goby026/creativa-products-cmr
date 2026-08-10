@@ -7,7 +7,6 @@ import { Dimensions } from "@/components/dimensions";
 import { Uses } from "@/components/uses";
 import { DeliveryStrip } from "@/components/delivery-strip";
 import { BottomCta } from "@/components/bottom-cta";
-import { BrandBanner } from "@/components/brand-banner";
 import { Footer } from "@/components/footer";
 import { useProduct } from "@/context/product-context";
 import { useMeta } from "@/hooks/use-meta";
@@ -65,7 +64,6 @@ export function PublicSite() {
         <Uses />
         <DeliveryStrip />
         <BottomCta color={color} />
-        <BrandBanner />
       </main>
       <Footer />
     </>

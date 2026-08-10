@@ -95,7 +95,16 @@ export function Footer() {
         <span>
           © {new Date().getFullYear()} {legal} · RUC {ruc}
         </span>
-        <span>Precios en soles (S/) · Incluye IGV</span>
+        <span className="flex items-center gap-4">
+          <span>Precios en soles (S/) · Incluye IGV</span>
+          <a
+            href="/admin/login"
+            className="inline-flex items-center gap-1.5 text-white/35 transition-colors hover:text-white/70"
+            aria-label="Acceso administradores"
+          >
+            🔐 Administrar
+          </a>
+        </span>
       </div>
     </footer>
   );
