@@ -1,4 +1,7 @@
 import { useEffect, useState } from "react";
+import { AlertTriangle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
 import { Nav } from "@/components/nav";
 import { Hero } from "@/components/hero";
 import { SpecsStrip } from "@/components/specs-strip";
@@ -15,7 +18,7 @@ import { trackVisit } from "@/lib/analytics";
 
 function Skeleton() {
   return (
-    <main className="mx-auto max-w-4xl animate-pulse px-6 py-24">
+    <main className="container-page animate-pulse py-28">
       <div className="mx-auto h-4 w-40 rounded bg-muted" />
       <div className="mx-auto mt-6 h-10 w-72 rounded bg-muted" />
       <div className="mx-auto mt-4 h-10 w-56 rounded bg-muted" />
@@ -28,19 +31,24 @@ function Skeleton() {
 function ErrorState({ message }: { message: string }) {
   return (
     <main className="flex min-h-screen items-center justify-center px-6">
-      <div className="max-w-md rounded-2xl border bg-card p-8 text-center">
-        <p className="text-4xl">⚠️</p>
-        <h1 className="mt-3 font-heading text-xl font-bold">
-          No pudimos cargar el contenido
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground">{message}</p>
-        <a
-          href="/"
-          className="mt-5 inline-block text-sm font-semibold text-primary underline"
-        >
-          Reintentar
-        </a>
-      </div>
+      <Card className="max-w-md rounded-2xl p-8 text-center shadow-lifted">
+        <CardContent className="p-0">
+          <span className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-destructive/10">
+            <AlertTriangle className="size-6 text-destructive" />
+          </span>
+          <CardTitle className="mt-4 font-heading text-xl font-bold">
+            No pudimos cargar el contenido
+          </CardTitle>
+          <CardDescription className="mt-2 text-sm">{message}</CardDescription>
+          <Button
+            variant="default"
+            className="mt-5 rounded-full"
+            onClick={() => window.location.reload()}
+          >
+            Reintentar
+          </Button>
+        </CardContent>
+      </Card>
     </main>
   );
 }

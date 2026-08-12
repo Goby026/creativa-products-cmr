@@ -25,7 +25,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         role="status"
         aria-live="polite"
         className={cn(
-          "pointer-events-none fixed bottom-7 left-1/2 z-[999] -translate-x-1/2 rounded-xl bg-foreground px-6 py-3.5 text-sm font-medium text-white shadow-xl transition-all duration-300",
+          "pointer-events-none fixed bottom-7 left-1/2 z-[999] -translate-x-1/2 rounded-xl border bg-popover px-6 py-3.5 text-sm font-medium text-popover-foreground shadow-lifted transition-all duration-300",
           message
             ? "translate-y-0 opacity-100"
             : "translate-y-5 opacity-0",

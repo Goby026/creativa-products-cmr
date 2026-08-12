@@ -1,3 +1,4 @@
+import { Card, CardContent } from "@/components/ui/card";
 import { useProduct } from "@/context/product-context";
 
 export function DeliveryStrip() {
@@ -6,16 +7,24 @@ export function DeliveryStrip() {
   if (data.benefits.length === 0) return null;
 
   return (
-    <div className="reveal flex flex-wrap items-center justify-center gap-5 bg-primary px-6 py-7 md:gap-10">
-      {data.benefits.map((item) => (
-        <div
-          key={item.id}
-          className="flex items-center gap-2.5 text-sm font-medium text-primary-foreground"
-        >
-          <span className="text-xl">{item.icon}</span>
-          <span>{item.text}</span>
-        </div>
-      ))}
-    </div>
+    <section className="section container-page pt-0">
+      <div className="reveal grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {data.benefits.map((item) => (
+          <Card
+            key={item.id}
+            className="rounded-2xl border-primary/15 bg-primary/5 shadow-soft"
+          >
+            <CardContent className="flex items-center gap-3 p-5">
+              <span className="tile-icon shrink-0" aria-hidden="true">
+                {item.icon}
+              </span>
+              <span className="text-sm font-medium leading-snug">
+                {item.text}
+              </span>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </section>
   );
 }

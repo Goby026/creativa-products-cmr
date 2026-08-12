@@ -1,3 +1,4 @@
+import { MapPin, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WhatsappIcon } from "@/components/whatsapp-icon";
 import { openWhatsApp } from "@/lib/whatsapp";
@@ -36,50 +37,60 @@ export function BottomCta({ color }: { color: string }) {
   };
 
   return (
-    <section className="bg-foreground px-6 py-20 text-center md:px-10">
-      <h2 className="font-heading text-[38px] font-bold text-white">
-        {cfg?.title ?? "¿Listo para organizar"}
-        <br />
-        <em className="italic text-primary-foreground">
-          {cfg?.title_em ?? "tu espacio?"}
-        </em>
-      </h2>
-      <p className="mb-8 mt-2.5 text-[15px] text-white/50">
-        {cfg?.subtitle ?? "Fabricado en Huancayo · Precios finales · Sin letra pequeña"}
-      </p>
-      {product && (
-        <span className="mb-7 block font-heading text-[60px] font-bold text-primary-foreground">
-          <small className="font-sans text-[22px] font-normal">
-            {product.currency}{" "}
-          </small>
-          {product.price}
-          {product.old_price != null && (
-            <small className="ml-3 text-base text-white/35 line-through">
-              {product.old_price}
-            </small>
+    <section className="section container-page">
+      <div className="relative overflow-hidden rounded-3xl bg-foreground px-6 py-16 text-center shadow-lifted md:px-10 md:py-20">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-20"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 20% 10%, rgba(255,255,255,0.35), transparent 45%), radial-gradient(circle at 85% 90%, rgba(255,255,255,0.2), transparent 45%)",
+          }}
+          aria-hidden="true"
+        />
+        <div className="relative">
+          <h2 className="heading-xl text-balance text-background">
+            {cfg?.title ?? "¿Listo para organizar"}
+            <br />
+            <em className="italic text-primary-foreground">
+              {cfg?.title_em ?? "tu espacio?"}
+            </em>
+          </h2>
+          <p className="mx-auto mb-8 mt-2.5 max-w-md text-[15px] text-background/60">
+            {cfg?.subtitle ?? "Fabricado en Huancayo · Precios finales · Sin letra pequeña"}
+          </p>
+          {product && (
+            <p className="mb-7 font-heading text-[56px] font-bold leading-none text-primary-foreground">
+              <small className="font-sans text-[22px] font-normal">
+                {product.currency}{" "}
+              </small>
+              {product.price}
+              {product.old_price != null && (
+                <small className="ml-3 text-base text-background/40 line-through">
+                  {product.old_price}
+                </small>
+              )}
+            </p>
           )}
-        </span>
-      )}
-      <br />
-      <Button
-        variant="whatsapp"
-        className="h-[60px] px-12 text-[17px]"
-        onClick={handleWhatsApp}
-        aria-label="Escribir al WhatsApp"
-      >
-        <WhatsappIcon className="size-5" />
-        Escribir al WhatsApp
-      </Button>
-      <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
-        <span className="flex items-center gap-1.5 text-xs text-white/40">
-          📞 {wa?.display ?? ""}
-        </span>
-        <span className="flex items-center gap-1.5 text-xs text-white/40">
-          📍 Huancayo, Junín
-        </span>
-        <span className="flex items-center gap-1.5 text-xs text-white/40">
-          🏭 Creativa Melatech
-        </span>
+          <Button
+            variant="whatsapp"
+            className="h-[60px] rounded-2xl px-12 text-[17px]"
+            onClick={handleWhatsApp}
+            aria-label="Escribir al WhatsApp"
+          >
+            <WhatsappIcon className="size-5" />
+            Escribir al WhatsApp
+          </Button>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
+            <span className="flex items-center gap-1.5 text-xs text-background/50">
+              <Phone className="size-3.5" />
+              {wa?.display ?? ""}
+            </span>
+            <span className="flex items-center gap-1.5 text-xs text-background/50">
+              <MapPin className="size-3.5" />
+              Huancayo, Junín
+            </span>
+          </div>
+        </div>
       </div>
     </section>
   );

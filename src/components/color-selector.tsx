@@ -1,5 +1,8 @@
+import { Check } from "lucide-react";
+import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import type { Color } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 export function ColorSelector({
   colors,
@@ -12,13 +15,17 @@ export function ColorSelector({
 }) {
   return (
     <div className="mb-6">
-      <span className="mb-2.5 block text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+      <Label
+        htmlFor="color-selector"
+        className="mb-2.5 block text-xs font-semibold uppercase tracking-widest text-muted-foreground"
+      >
         Color del acabado
-      </span>
+      </Label>
       <RadioGroup
         value={value}
         onValueChange={onChange}
         className="flex flex-wrap gap-2"
+        aria-label="Color del acabado"
       >
         {colors.map((c) => (
           <div key={c.id}>
@@ -27,16 +34,20 @@ export function ColorSelector({
               id={`color-${c.value}`}
               className="peer sr-only"
             />
-            <label
+            <Label
               htmlFor={`color-${c.value}`}
-              className="flex cursor-pointer items-center gap-2 rounded-[10px] border-[1.5px] bg-card px-3.5 py-2 text-sm font-medium transition-colors peer-data-checked:border-primary peer-data-checked:shadow-[0_0_0_2px_rgba(0,0,0,0.15)]"
+              className={cn(
+                "flex cursor-pointer items-center gap-2 rounded-xl border bg-card px-3.5 py-2 text-sm font-medium shadow-soft transition-all peer-data-checked:border-primary peer-data-checked:ring-2 peer-data-checked:ring-primary/30",
+              )}
             >
               <span
-                className="h-4 w-4 rounded-full border-[1.5px] border-black/15"
+                className="size-4 rounded-full border border-black/15"
                 style={{ background: c.swatch }}
+                aria-hidden="true"
               />
               {c.value}
-            </label>
+              <Check className="hidden size-3.5 text-primary peer-data-checked:block" />
+            </Label>
           </div>
         ))}
       </RadioGroup>

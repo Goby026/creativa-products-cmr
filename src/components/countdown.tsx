@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { Timer } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
 const OFFER_HOURS_MS = 24 * 60 * 60 * 1000;
 
@@ -36,8 +38,9 @@ export function Countdown() {
 
   return (
     <div className="mb-6">
-      <p className="mb-2.5 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-        ⏱ Oferta termina en
+      <p className="mb-2.5 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+        <Timer className="size-4 text-primary" />
+        Oferta termina en
       </p>
       <div
         className="flex gap-2.5"
@@ -45,17 +48,16 @@ export function Countdown() {
         aria-label="Tiempo restante de la oferta"
       >
         {units.map((unit) => (
-          <div
-            key={unit.label}
-            className="min-w-14 rounded-[10px] bg-foreground px-3.5 py-2.5 text-center text-primary-foreground"
-          >
-            <span className="block font-heading text-[22px] font-bold leading-none">
-              {format(unit.value)}
-            </span>
-            <span className="mt-1 block text-[9px] font-semibold uppercase tracking-widest text-white/50">
-              {unit.label}
-            </span>
-          </div>
+          <Card key={unit.label} className="rounded-xl shadow-soft">
+            <CardContent className="flex min-w-16 flex-col items-center gap-0.5 p-3 text-center">
+              <span className="font-heading text-2xl font-bold leading-none text-foreground">
+                {format(unit.value)}
+              </span>
+              <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                {unit.label}
+              </span>
+            </CardContent>
+          </Card>
         ))}
       </div>
     </div>
